@@ -1,7 +1,7 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import MainMenu from "../server/common/Menu";
-import Canvas from "../server/common/Canvas";
+import Board from "../server/common/Board";
 
 const Home: NextPage = () => {
   return (
@@ -14,7 +14,7 @@ const Home: NextPage = () => {
       <main>
         <MainMenu></MainMenu>
         <div>
-            <Canvas></Canvas>
+            <Board></Board>
         </div>
       </main>
     </>

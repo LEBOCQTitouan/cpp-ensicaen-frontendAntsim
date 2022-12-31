@@ -6,7 +6,7 @@ export default function (req: NextApiRequest, res: NextApiResponse) {
   res.statusCode = 200
   res.json({
     tiles: [
-      [{type:TileType.ROCK}, {type: TileType.DEFAULT, ants: [{colony: "test", type: AntType.QUEEN}]}, {type: TileType.DEFAULT}, {type: TileType.DEFAULT}],
+      [{type:TileType.ROCK}, {type: TileType.DEFAULT, ants: [{colony: "test", type: AntType.QUEEN}]}, {type: TileType.DEFAULT}, {type: TileType.COLONY}],
       [{type: TileType.DEFAULT}, {type: TileType.DEFAULT}, {type: TileType.DEFAULT}, {type: TileType.DEFAULT}],
       [{type: TileType.DEFAULT}, {type: TileType.DEFAULT}, {type: TileType.DEFAULT}, {type: TileType.DEFAULT}],
       [{type: TileType.DEFAULT}, {type: TileType.DEFAULT}, {type: TileType.DEFAULT}, {type: TileType.DEFAULT}]
