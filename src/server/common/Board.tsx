@@ -3,6 +3,7 @@ import { AntMap } from "./utils/Map";
 import { Tile } from "./utils/Tile";
 import { UtilDrawing } from "./UtilCanvas";
 import { TileType } from "./utils/enums/TileType";
+import { Ant } from "./utils/Ant";
 
 /**
  * util function used to get a metric used to display as mush element (of same size) as possible on a canvas
@@ -10,10 +11,10 @@ import { TileType } from "./utils/enums/TileType";
  * @param n the maximum number of elements on both horizontal and vertical axis
  */
 const getCanvasMetric = (canvas : HTMLCanvasElement, n : number) : number => {
-  if (canvas.height > canvas.width) {
-    return canvas.width / n;
+  if (canvas.clientHeight > canvas.clientWidth) {
+    return canvas.clientWidth / n;
   }
-  return canvas.height / n;
+  return canvas.clientHeight / n;
 }
 
 /**
@@ -46,24 +47,46 @@ const getMaxSizeArrayInsideMatrix = (matrix : any[][]) : number => {
 }
 
 const drawTileBackground = (context : CanvasRenderingContext2D, tile : Tile, x : number, y : number, util : UtilDrawing) => {
+  const img:HTMLImageElement = new Image();
   switch (tile.type) {
     case TileType.ROCK:
-      context.fillStyle = "#808080";
-    break;
+      img.src = "/canvas/Food.png";
+      break;
     case TileType.COLONY:
-      context.fillStyle = "#964B00";
+      img.src = "/canvas/Ground Ant.png";
+      break;
+    case TileType.FOOD:
+      if (tile.discovered) {
+        img.src = "/canvas/Food.png";
+      } else {
+        img.src = "/canvas/Food undiscovered.png";
+      }
       break;
     case TileType.DEFAULT:
-      context.fillStyle = "#00FF00"
+      if (tile.discovered) {
+        img.src = "/canvas/Ground.png";
+      } else {
+        img.src = "/canvas/Ground undiscovered.png";
+      }
       break;
   }
-  context.fillRect(x, y, util.metric * util.scaling, util.metric * util.scaling);
+  context.drawImage(img, x, y, util.metric * util.scaling, util.metric * util.scaling);
 }
+
+const drawAnt = (context : CanvasRenderingContext2D, ants : Ant[], x : number, y : number, util : UtilDrawing) => {
+  const img = new Image();
+  img.src = "/canvas/ants/Ant.png";
+  context.drawImage(img, x, y, util.metric * util.scaling, util.metric * util.scaling);
+}
+
 const drawTile = (canvas : HTMLCanvasElement, tile : Tile, x : number, y : number, util : UtilDrawing) : void => {
   const context : CanvasRenderingContext2D | null = canvas.getContext('2d');
   if (context == null)
     return;
   drawTileBackground(context, tile, x, y, util);
+  if (tile.ants) {
+    drawAnt(context, tile.ants, x, y, util);
+  }
 }
 
 const drawAntMap = (canvas : HTMLCanvasElement, map : AntMap, util : UtilDrawing) : void => {
@@ -98,7 +121,10 @@ const Board: React.FC = (props) => {
   const [offsetX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
   const [scaling, setScaling] = useState<number>(1);
-  const [metric, setMetric] = useState<number>(0)
+  const [metric, setMetric] = useState<number>(0);
+
+  const [canvasHeight, setCanvasHeight] = useState<number>(0);
+  const [canvasWidth, setCanvasWidth] = useState<number>(0);
 
   const refreshingRateApi = 10000;
 
@@ -118,6 +144,8 @@ const Board: React.FC = (props) => {
   }
 
   useEffect(() => {
+    setCanvasHeight(window.innerHeight);
+    setCanvasWidth(window.innerWidth);
     fetchData().then(r => {return;});
     const interval = setInterval(() => {
       fetchData().then(r => {return;});
@@ -149,8 +177,8 @@ const Board: React.FC = (props) => {
         setScaling(scaling + event_value);
       }
     } else {
-      const delta_x = event.deltaX / 10;
-      const delta_y = event.deltaY / 10;
+      const delta_x = event.deltaX;
+      const delta_y = event.deltaY;
       setOffsetX(offsetX + delta_x);
       setOffsetY(offsetY + delta_y);
     }
@@ -161,11 +189,15 @@ const Board: React.FC = (props) => {
   }
 
   return (
-    <canvas
-      ref={canvasRef}
-      onWheel={handleWheelEvent}
-      className={"h-full w-full bg-black"}
-    ></canvas>
+    <>
+      <canvas
+        ref={canvasRef}
+        onWheel={handleWheelEvent}
+        className={"h-full w-full bg-black"}
+        height={canvasHeight}
+        width={canvasWidth}
+      ></canvas>
+    </>
   );
 }
 
